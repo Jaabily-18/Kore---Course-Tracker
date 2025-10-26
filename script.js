@@ -1,163 +1,196 @@
-    // Run on initial load to apply theme *before* content loads if possible
-    applySavedTheme();
+// Run on initial load to apply theme *before* content loads if possible
+applySavedTheme();
 
-    // Main function after DOM is ready
-    document.addEventListener("DOMContentLoaded", () => {
-        loadAndDisplayUserData(); // Load saved name immediately (updates placeholders if they exist)
-        loadSidebarAndHeader(); // Start loading partials
-        // Global listeners are added *after* partials are likely loaded inside loadSidebarAndHeader's .then() chain now
-    });
+// Main function after DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+    loadAndDisplayUserData(); // Load saved name immediately (updates placeholders if they exist)
+    loadSidebarAndHeader(); // Start loading partials
+    // Global listeners are added *after* partials are likely loaded inside loadSidebarAndHeader's .then() chain now
+});
 
-    /**
-     * Checks localStorage for theme and applies 'dark-mode' class to body
-     */
-    function applySavedTheme() {
-        const isDarkMode = localStorage.getItem('theme') === 'dark';
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
+/**
+ * Checks localStorage for theme and applies 'dark-mode' class to body
+ */
+function applySavedTheme() {
+    const isDarkMode = localStorage.getItem('theme') === 'dark';
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
     }
+}
 
-    /**
-     * Reads name from localStorage and updates UI elements
-     */
-    function loadAndDisplayUserData() {
-        const savedName = localStorage.getItem('userName') || "User Name";
-        const userInitial = savedName ? savedName.charAt(0).toUpperCase() : "U";
+/**
+ * Reads name from localStorage and updates UI elements
+ */
+function loadAndDisplayUserData() {
+    const savedName = localStorage.getItem('userName') || "User Name";
+    const userInitial = savedName ? savedName.charAt(0).toUpperCase() : "U";
 
-        // Update Sidebar (Check if elements exist before updating)
-        const sidebarName = document.getElementById("sidebar-user-name");
-        if (sidebarName) sidebarName.innerText = savedName;
-        const sidebarIcon = document.getElementById("sidebar-profile-img");
-        if (sidebarIcon) sidebarIcon.src = `https://placehold.co/100x100/d9e2f3/1f497d?text=${userInitial}`;
+    // Update Sidebar (Check if elements exist before updating)
+    const sidebarName = document.getElementById("sidebar-user-name");
+    if (sidebarName) sidebarName.innerText = savedName;
+    const sidebarIcon = document.getElementById("sidebar-profile-img");
+    if (sidebarIcon) sidebarIcon.src = `https://placehold.co/100x100/d9e2f3/1f497d?text=${userInitial}`;
 
-        // Update Header (Check if elements exist before updating)
-        const headerIcon = document.getElementById("header-profile-icon");
-        if (headerIcon) headerIcon.src = `https://placehold.co/100x100/d9e2f3/1f497d?text=${userInitial}`;
+    // Update Header (Check if elements exist before updating)
+    const headerIcon = document.getElementById("header-profile-icon");
+    if (headerIcon) headerIcon.src = `https://placehold.co/100x100/d9e2f3/1f497d?text=${userInitial}`;
 
-        // Update Home Page Welcome
-        const welcomeMessage = document.getElementById("welcome-message");
-        if (welcomeMessage) welcomeMessage.innerText = `Welcome back, ${savedName}!`;
+    // Update Home Page Welcome
+    const welcomeMessage = document.getElementById("welcome-message");
+    if (welcomeMessage) welcomeMessage.innerText = `Welcome back, ${savedName}!`;
 
-        // Update Leaderboard
-        const leaderboardName = document.getElementById("leaderboard-user-name");
-        if (leaderboardName) leaderboardName.innerText = `${savedName} (You)`;
+    // Update Leaderboard
+    const leaderboardName = document.getElementById("leaderboard-user-name");
+    if (leaderboardName) leaderboardName.innerText = `${savedName} (You)`;
 
-        // Update Settings Page Form
-        const settingsNameInput = document.getElementById("full-name");
-        if (settingsNameInput) settingsNameInput.value = savedName;
-    }
+    // Update Settings Page Form
+    const settingsNameInput = document.getElementById("full-name");
+    if (settingsNameInput) settingsNameInput.value = savedName;
+}
 
-    /**
-     * Loads the sidebar and header partials via fetch
-     * IMPORTANT: Now adds listeners *after* content is loaded.
-     */
-    function loadSidebarAndHeader() {
-        const sidebarPromise = fetch("./_sidebar.html") // MODIFIED: Added ./
-            .then(response => response.ok ? response.text() : Promise.reject('Sidebar not found'))
-            .then(data => {
-                const container = document.getElementById("sidebar-container");
-                if (container) container.innerHTML = data;
-                setActiveSidebarLink(); // Set active link after sidebar HTML is present
-                loadAndDisplayUserData(); // Update name/icon after load
-            })
-            .catch(error => console.error("Error loading sidebar:", error));
+/**
+ * Loads the sidebar and header partials via fetch
+ * IMPORTANT: Now adds listeners *after* content is loaded.
+ */
+function loadSidebarAndHeader() {
+    const sidebarPromise = fetch("./_sidebar.html") // Ensure ./ is present
+        .then(response => {
+             if (!response.ok) throw new Error(`Sidebar fetch failed: ${response.status} ${response.statusText}`);
+             return response.text();
+         })
+        .then(data => {
+            const container = document.getElementById("sidebar-container");
+            if (container) container.innerHTML = data;
+            setActiveSidebarLink(); // Set active link after sidebar HTML is present
+            loadAndDisplayUserData(); // Update name/icon after load
+        })
+        .catch(error => console.error("Error loading sidebar:", error)); // Log detailed fetch error
 
-        const headerPromise = fetch("./_header.html") // MODIFIED: Added ./
-            .then(response => response.ok ? response.text() : Promise.reject('Header not found'))
-            .then(data => {
-                const container = document.getElementById("header-container");
-                if (container) container.innerHTML = data;
-                loadAndDisplayUserData(); // Update name/icon after load
-            })
-            .catch(error => console.error("Error loading header:", error));
+    const headerPromise = fetch("./_header.html") // Ensure ./ is present
+         .then(response => {
+             if (!response.ok) throw new Error(`Header fetch failed: ${response.status} ${response.statusText}`);
+             return response.text();
+         })
+        .then(data => {
+            const container = document.getElementById("header-container");
+            if (container) container.innerHTML = data;
+            loadAndDisplayUserData(); // Update name/icon after load
+        })
+        .catch(error => console.error("Error loading header:", error)); // Log detailed fetch error
 
-        // Wait for both fetch calls to complete before adding listeners
-        // that depend on the fetched content
-        Promise.all([sidebarPromise, headerPromise])
-            .then(() => {
-                console.log("Header and Sidebar loaded, adding listeners.");
-                addHeaderSpecificListeners(); // Add listeners dependent on header
-                addGlobalClickListeners(); // Add listeners for menus
-                addSettingsListeners(); // Add settings listeners (including theme)
-                addModalListeners(); // Add modal listeners
-                addChatListeners(); // Add chat listeners
-            })
-            .catch(error => {
-                console.error("Error loading partials, listeners might not be added correctly:", error);
-            });
-    }
-
-
-    /**
-     * Sets the active link in the sidebar based on current page
-     */
-    function setActiveSidebarLink() {
-        try {
-            const currentPage = window.location.pathname.split("/").pop() || "index.html";
-            // Make sure sidebar container exists before query
-            const sidebarContainer = document.getElementById("sidebar-container");
-            if (!sidebarContainer) return;
-
-            const sidebarLinks = sidebarContainer.querySelectorAll(".sidebar-nav a");
-
-            sidebarLinks.forEach(link => {
-                const linkPage = link.getAttribute("href");
-                // Adjust comparison for dashboard.html being the 'home' page
-                const onDashboard = (currentPage === "dashboard.html");
-
-                link.classList.remove("active"); // Remove active from all first
-                if ((linkPage === "dashboard.html" && onDashboard) || (linkPage === currentPage && !onDashboard && currentPage !== "index.html")) {
-                     link.classList.add("active");
+    // Wait for both fetch calls to attempt completion before adding listeners
+    Promise.allSettled([sidebarPromise, headerPromise]) // Use allSettled to proceed even if one fails
+        .then((results) => {
+            console.log("Header and Sidebar fetch attempts completed.");
+            // Log results for debugging
+            results.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    console.error(`Promise ${index === 0 ? 'Sidebar' : 'Header'} failed:`, result.reason);
                 }
-                 // Special case for index.html (landing page) if needed, but sidebar shouldn't be there.
             });
-        } catch (error) {
-            console.warn("Could not set active sidebar link:", error);
-        }
-    }
+            // Try adding listeners even if one failed, maybe some elements exist
+            addHeaderSpecificListeners(); // Add listeners dependent on header
+            addGlobalClickListeners(); // Add listeners for menus
+            addSettingsListeners(); // Add settings listeners (including theme)
+            addModalListeners(); // Add modal listeners
+            addChatListeners(); // Add chat listeners
+        });
+        // Removed original .catch as allSettled handles errors differently
+}
 
-    /**
-     * Utility function for showing toast notifications
-     */
-    function showToast(message, type = "success") {
-        const toast = document.getElementById("toast-notification");
-        if (!toast) {
-            console.error("Toast element not found!");
+
+/**
+ * Sets the active link in the sidebar based on current page
+ */
+function setActiveSidebarLink() {
+    try {
+        // Default to dashboard.html if root path accessed in subdirectory deployment
+        let currentPage = window.location.pathname.split("/").pop() || "index.html";
+        if (currentPage === "" && window.location.pathname.includes('/')) { // Check if it's the root of the repo path
+             currentPage = "index.html"; // Treat repo root as landing page
+        } else if (currentPage === "index.html") {
+            // It actually is the landing page
+        } else if (currentPage === "") {
+             currentPage = "index.html"; // Fallback if split somehow returns empty on non-root
+        }
+
+
+        const sidebarContainer = document.getElementById("sidebar-container");
+        if (!sidebarContainer) {
+            console.warn("Sidebar container not found for setActiveSidebarLink");
             return;
         }
-        toast.innerText = message;
-        toast.className = "toast-notification show"; // Reset classes and show
-        setTimeout(() => toast.classList.remove("show"), 3000);
-    }
 
-    /**
-     * Adds event listeners that don't depend on fetched content immediately
-     * (Listeners dependent on fetched content are added later)
-     */
-    function addGlobalListeners() {
-        // Mobile Menu Toggle Logic - Listens on document, safe to add early
-        document.addEventListener('change', (event) => {
-            if (event.target && event.target.id === 'nav-toggle') { /* CSS handles appearance */ }
+        const sidebarLinks = sidebarContainer.querySelectorAll(".sidebar-nav a");
+        if(sidebarLinks.length === 0) {
+             console.warn("No sidebar links found to set active state.");
+             return;
+        }
+
+        sidebarLinks.forEach(link => {
+            const linkPage = link.getAttribute("href");
+            // Check if link target matches current page filename
+             const isMatch = (linkPage === currentPage);
+             // Special check for the dashboard link
+             const isDashboardLink = (linkPage === "dashboard.html");
+             const onDashboardPage = (currentPage === "dashboard.html");
+
+
+            link.classList.remove("active"); // Remove active from all first
+
+            if (isDashboardLink && onDashboardPage) {
+                link.classList.add("active"); // Activate dashboard link specifically
+            } else if (!isDashboardLink && isMatch && currentPage !== "index.html") {
+                 link.classList.add("active"); // Activate other links if they match
+            }
         });
-
-        // Other listeners (modal, chat, settings) are added *after* fetch completes
-        // in the Promise.all().then() block within loadSidebarAndHeader.
+    } catch (error) {
+        console.error("Error in setActiveSidebarLink:", error); // Log errors
     }
+}
 
 
-    /**
-     * Adds listeners for elements INSIDE the fetched header
-     */
-    function addHeaderSpecificListeners() {
-        console.log("Attempting to add header specific listeners...");
+/**
+ * Utility function for showing toast notifications
+ */
+function showToast(message, type = "success") {
+    const toast = document.getElementById("toast-notification");
+    if (!toast) {
+        console.error("Toast element not found!");
+        return;
+    }
+    toast.innerText = message;
+    toast.className = "toast-notification show"; // Reset classes and show
+    setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+/**
+ * Adds event listeners that don't depend on fetched content immediately
+ */
+function addGlobalListeners() {
+    // Mobile Menu Toggle Logic
+    document.addEventListener('change', (event) => {
+        if (event.target && event.target.id === 'nav-toggle') { /* CSS handles appearance */ }
+    });
+    // Other specific listeners are added *after* fetch completes
+}
+
+
+/**
+ * Adds listeners for elements INSIDE the fetched header
+ */
+function addHeaderSpecificListeners() {
+    console.log("Attempting to add header specific listeners...");
+    try { // Wrap in try...catch to prevent script halting
         // --- Search Bar & Quote Logic ---
         const searchForm = document.getElementById("search-form");
         const quoteElement = document.getElementById("header-quote");
-        const currentPage = window.location.pathname.split("/").pop() || "index.html";
-        const searchPages = ["dashboard.html", "courses.html"]; // Updated to dashboard.html
+        let currentPage = window.location.pathname.split("/").pop() || "index.html";
+         if (currentPage === "") currentPage = "index.html"; // Handle root path
+
+        const searchPages = ["dashboard.html", "courses.html"]; // Pages with search
         const quotes = [
             '“Romanticizing my study grind because success looks good on me.”',
             '“Coffee and ambition running in my veins.”',
@@ -167,21 +200,28 @@
         ];
 
         if (searchForm && quoteElement) {
-             if (searchPages.includes(currentPage)) {
+            if (searchPages.includes(currentPage)) {
                 searchForm.style.display = "flex";
                 quoteElement.style.display = "none";
-            } else {
+            } else if (currentPage !== "index.html" && currentPage !== "auth.html") { // Hide search/show quote only on dashboard pages
                 searchForm.style.display = "none";
                 const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
                 quoteElement.innerText = randomQuote;
                 quoteElement.style.display = "block";
+            } else { // On index.html or auth.html, hide both
+                 searchForm.style.display = "none";
+                 quoteElement.style.display = "none";
             }
         } else {
-            console.log("Search form or quote element not found yet.");
+            console.warn("Search form or quote element not found during listener setup.");
         }
         if (searchForm) {
             const searchInput = document.getElementById("search-input");
-             searchForm.addEventListener("submit", (event) => { event.preventDefault(); const query = searchInput.value.trim(); if (query) { const youtubeURL = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; window.open(youtubeURL, "_blank"); searchInput.value = ""; }});
+            if (searchInput) {
+                 searchForm.addEventListener("submit", (event) => { event.preventDefault(); const query = searchInput.value.trim(); if (query) { const youtubeURL = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; window.open(youtubeURL, "_blank"); searchInput.value = ""; }});
+            } else {
+                 console.warn("Search input not found.");
+            }
         }
 
         // --- Profile Dropdown Logic ---
@@ -195,7 +235,7 @@
             });
             console.log("Profile dropdown listener added.");
         } else {
-            console.log("Profile icon or menu not found yet for listener.");
+            console.warn("Profile icon or menu not found for listener setup.");
         }
 
         // --- Notification Dropdown Logic ---
@@ -209,7 +249,7 @@
             });
             console.log("Notification dropdown listener added.");
         } else {
-            console.log("Notification icon or menu not found yet for listener.");
+            console.warn("Notification icon or menu not found for listener setup.");
         }
 
 
@@ -224,137 +264,161 @@
             });
             console.log("Logout listener added.");
         } else {
-             console.log("Logout button not found yet for listener.");
+            console.warn("Logout button not found for listener setup.");
+        }
+    } catch (error) {
+        console.error("Error adding header specific listeners:", error);
+    }
+}
+
+/**
+* Adds global click listeners (like closing menus) after elements exist
+*/
+function addGlobalClickListeners() {
+     console.log("Adding global click listener for menus.");
+    // --- Generic Click Outside to Close Menus ---
+    window.addEventListener("click", (event) => {
+        // Find elements *inside* the listener to ensure they exist
+        const profileIcon = document.getElementById("header-profile-icon");
+        const profileMenu = document.getElementById("profile-dropdown-menu");
+        const notificationIcon = document.getElementById("notification-icon");
+        const notificationMenu = document.getElementById("notification-dropdown-menu");
+
+        closeMenuIfOpen(profileMenu, profileIcon, event.target);
+        closeMenuIfOpen(notificationMenu, notificationIcon, event.target);
+    });
+}
+
+
+/**
+ * Helper function to close a menu if it's open and click was outside
+ */
+function closeMenuIfOpen(menuElement, triggerElement = null, target = null) {
+    // Only proceed if the menu element exists and is shown
+    if (menuElement && menuElement.classList.contains("show")) {
+        let clickedOutside = true;
+        // If trigger and target exist, check if click was on/inside them
+        if (triggerElement && target && (triggerElement.contains(target) || menuElement.contains(target))) {
+            clickedOutside = false;
+        }
+        // If click was outside, or if called without target (e.g., from other menu click)
+        if (clickedOutside || !target) {
+            menuElement.classList.remove("show");
         }
     }
+}
 
-    /**
-    * Adds global click listeners (like closing menus) after elements exist
-    */
-    function addGlobalClickListeners() {
-        // --- Generic Click Outside to Close Menus ---
-        window.addEventListener("click", (event) => {
-            // Need to find elements again as they might not exist when listener is added initially
-            const profileIcon = document.getElementById("header-profile-icon");
-            const profileMenu = document.getElementById("profile-dropdown-menu");
-            const notificationIcon = document.getElementById("notification-icon");
-            const notificationMenu = document.getElementById("notification-dropdown-menu");
-
-            closeMenuIfOpen(profileMenu, profileIcon, event.target);
-            closeMenuIfOpen(notificationMenu, notificationIcon, event.target);
+/**
+ * Adds listeners related to the settings page form and theme toggle
+ */
+function addSettingsListeners() {
+     console.log("Attempting to add settings listeners...");
+    // --- Settings Save Logic ---
+    const settingsForm = document.getElementById("settings-form");
+    if (settingsForm) {
+        settingsForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const newName = document.getElementById("full-name").value.trim();
+            if (newName) {
+                localStorage.setItem('userName', newName);
+                loadAndDisplayUserData();
+                showToast("Changes saved successfully! ✅");
+            } else {
+                alert("Name cannot be empty.");
+            }
         });
-        console.log("Global click listener for closing menus added.");
+        console.log("Settings form listener added.");
     }
 
+    // --- Dark Mode Toggle Logic ---
+    const themeSwitch = document.getElementById('theme-switch');
+    if (themeSwitch) {
+        // Set initial state based on applied theme
+        themeSwitch.checked = document.body.classList.contains('dark-mode');
 
-    /**
-     * Helper function to close a menu if it's open and click was outside
-     */
-    function closeMenuIfOpen(menuElement, triggerElement = null, target = null) {
-        if (menuElement && menuElement.classList.contains("show")) {
-            let clickedOutside = true;
-            if (triggerElement && target && (triggerElement.contains(target) || menuElement.contains(target))) {
-                clickedOutside = false;
+        themeSwitch.addEventListener('change', function(event) {
+            if (event.target.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark'); // Save preference
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light'); // Save preference
             }
-            if (clickedOutside || !target) {
-                menuElement.classList.remove("show");
-            }
-        }
-    }
-
-    /**
-     * Adds listeners related to the settings page form and theme toggle
-     */
-    function addSettingsListeners() {
-        // --- Settings Save Logic ---
-        const settingsForm = document.getElementById("settings-form");
-        if (settingsForm) {
-            settingsForm.addEventListener("submit", (event) => {
-                event.preventDefault();
-                const newName = document.getElementById("full-name").value.trim();
-                if (newName) {
-                    localStorage.setItem('userName', newName);
-                    loadAndDisplayUserData();
-                    showToast("Changes saved successfully! ✅");
-                } else {
-                    alert("Name cannot be empty.");
-                }
-            });
-        }
-
-        // --- Dark Mode Toggle Logic ---
-        const themeSwitch = document.getElementById('theme-switch');
-        if (themeSwitch) {
-            // Set initial state based on applied theme
-            themeSwitch.checked = document.body.classList.contains('dark-mode');
-
-            themeSwitch.addEventListener('change', function(event) {
-                if (event.target.checked) {
-                    document.body.classList.add('dark-mode');
-                    localStorage.setItem('theme', 'dark'); // Save preference
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    localStorage.setItem('theme', 'light'); // Save preference
-                }
-            });
-        }
-    }
-
-    /**
-     * Adds listeners related to the submission modal
-     */
-    function addModalListeners() {
-        const modal = document.getElementById("submission-modal");
-        if (modal) {
-            const closeModalBtn = modal.querySelector(".modal-close-btn");
-            const submissionForm = document.getElementById("submission-form");
-
-            function openModal(event) { event.preventDefault(); modal.style.display = "grid"; setTimeout(() => modal.classList.add("show"), 10); }
-            function closeModal() { modal.classList.remove("show"); setTimeout(() => (modal.style.display = "none"), 300); }
-
-            // Use event delegation on the document for dynamically added content if needed,
-            // but direct binding is fine if the trigger elements exist on initial load.
-            document.addEventListener("click", (event) => {
-                if (event.target.classList.contains("js-open-modal")) openModal(event);
-            });
-            if(closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
-            modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
-            if(submissionForm) submissionForm.addEventListener("submit", (event) => { event.preventDefault(); const fileInput = document.getElementById("file-upload"); if (fileInput.value) { closeModal(); showToast("File Submitted! ✅"); fileInput.value = ""; } else { alert("Please choose a file to submit."); }});
-        }
-    }
-
-    /**
-     * Adds listeners related to the chat popup
-     */
-    function addChatListeners() {
-        const chatToggleBtn = document.getElementById("chat-toggle-btn");
-        const chatPopup = document.getElementById("chat-popup");
-        if (chatToggleBtn && chatPopup) {
-            const chatForm = document.getElementById("chat-input-form");
-            const chatInput = document.getElementById("chat-input");
-            const chatMessages = document.getElementById("chat-messages");
-
-            chatToggleBtn.addEventListener("click", () => chatPopup.classList.toggle("show"));
-            if(chatForm && chatInput && chatMessages) {
-                chatForm.addEventListener("submit", (event) => { event.preventDefault(); const userMessage = chatInput.value.trim(); if (userMessage) { addChatMessage(userMessage, "user-message", chatMessages); chatInput.value = ""; setTimeout(() => sendBotResponse(chatMessages), 1200); }});
-            }
-        }
-    }
-
-    // Helper function specific to chat (make sure it's accessible or defined within addChatListeners)
-    function addChatMessage(text, className = "", messagesContainer) {
-        if(!messagesContainer) return;
-        const bubble = document.createElement("div");
-        bubble.classList.add("message-bubble");
-        if (className) bubble.classList.add(className);
-        bubble.innerText = text;
-        messagesContainer.appendChild(bubble);
-        requestAnimationFrame(() => {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
+        console.log("Theme switch listener added.");
     }
-    // Helper function specific to chat
-    function sendBotResponse(messagesContainer) {
-        addChatMessage("Sorry, I am just a demo bot! I can't provide real responses just yet.", "", messagesContainer);
+}
+
+/**
+ * Adds listeners related to the submission modal
+ */
+function addModalListeners() {
+     console.log("Attempting to add modal listeners...");
+    const modal = document.getElementById("submission-modal");
+    if (modal) {
+        const closeModalBtn = modal.querySelector(".modal-close-btn");
+        const submissionForm = document.getElementById("submission-form");
+
+        function openModal(event) { event.preventDefault(); modal.style.display = "grid"; setTimeout(() => modal.classList.add("show"), 10); }
+        function closeModal() { modal.classList.remove("show"); setTimeout(() => (modal.style.display = "none"), 300); }
+
+        // Use event delegation on document for potentially dynamic triggers
+        document.addEventListener("click", (event) => {
+            if (event.target.matches(".js-open-modal")) { // Use matches for reliability
+                 openModal(event);
+            }
+        });
+
+        if(closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
+        if(submissionForm) submissionForm.addEventListener("submit", (event) => { event.preventDefault(); const fileInput = document.getElementById("file-upload"); if (fileInput.value) { closeModal(); showToast("File Submitted! ✅"); fileInput.value = ""; } else { alert("Please choose a file to submit."); }});
+        console.log("Modal listeners added.");
+    } else {
+         console.warn("Submission modal element not found.");
     }
-    ```
+}
+
+/**
+ * Adds listeners related to the chat popup
+ */
+function addChatListeners() {
+     console.log("Attempting to add chat listeners...");
+    const chatToggleBtn = document.getElementById("chat-toggle-btn");
+    const chatPopup = document.getElementById("chat-popup");
+    if (chatToggleBtn && chatPopup) {
+        const chatForm = document.getElementById("chat-input-form");
+        const chatInput = document.getElementById("chat-input");
+        const chatMessages = document.getElementById("chat-messages");
+
+        chatToggleBtn.addEventListener("click", () => chatPopup.classList.toggle("show"));
+        if(chatForm && chatInput && chatMessages) {
+            chatForm.addEventListener("submit", (event) => { event.preventDefault(); const userMessage = chatInput.value.trim(); if (userMessage) { addChatMessage(userMessage, "user-message", chatMessages); chatInput.value = ""; setTimeout(() => sendBotResponse(chatMessages), 1200); }});
+            console.log("Chat form listener added.");
+        } else {
+            console.warn("Chat form, input, or messages element not found.");
+        }
+    } else {
+        console.warn("Chat toggle button or popup element not found.");
+    }
+}
+
+// Helper function specific to chat
+function addChatMessage(text, className = "", messagesContainer) {
+    if(!messagesContainer) {
+         console.error("Chat messages container not provided for addChatMessage.");
+         return;
+     }
+    const bubble = document.createElement("div");
+    bubble.classList.add("message-bubble");
+    if (className) bubble.classList.add(className);
+    bubble.innerText = text;
+    messagesContainer.appendChild(bubble);
+    requestAnimationFrame(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+}
+// Helper function specific to chat
+function sendBotResponse(messagesContainer) {
+    addChatMessage("Sorry, I am just a demo bot! I can't provide real responses just yet.", "", messagesContainer);
+}
+
