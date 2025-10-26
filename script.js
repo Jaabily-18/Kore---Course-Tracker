@@ -55,8 +55,8 @@ function loadAndDisplayUserData() {
  * IMPORTANT: Now adds listeners *after* content is loaded.
  */
 function loadSidebarAndHeader() {
-    // MODIFIED: Removed ./ from path
-    const sidebarPromise = fetch("_sidebar.html")
+    // MODIFIED: Using absolute path from repo root
+    const sidebarPromise = fetch("/Kore--Course-Tracker/_sidebar.html")
         .then(response => {
              if (!response.ok) throw new Error(`Sidebar fetch failed: ${response.status} ${response.statusText}`);
              return response.text();
@@ -69,8 +69,8 @@ function loadSidebarAndHeader() {
         })
         .catch(error => console.error("Error loading sidebar:", error)); // Log detailed fetch error
 
-    // MODIFIED: Removed ./ from path
-    const headerPromise = fetch("_header.html")
+    // MODIFIED: Using absolute path from repo root
+    const headerPromise = fetch("/Kore--Course-Tracker/_header.html")
          .then(response => {
              if (!response.ok) throw new Error(`Header fetch failed: ${response.status} ${response.statusText}`);
              return response.text();
@@ -86,18 +86,16 @@ function loadSidebarAndHeader() {
     Promise.allSettled([sidebarPromise, headerPromise]) // Use allSettled to proceed even if one fails
         .then((results) => {
             console.log("Header and Sidebar fetch attempts completed.");
-            // Log results for debugging
             results.forEach((result, index) => {
                 if (result.status === 'rejected') {
                     console.error(`Promise ${index === 0 ? 'Sidebar' : 'Header'} failed:`, result.reason);
                 }
             });
-            // Try adding listeners even if one failed, maybe some elements exist
-            addHeaderSpecificListeners(); // Add listeners dependent on header
-            addGlobalClickListeners(); // Add listeners for menus
-            addSettingsListeners(); // Add settings listeners (including theme)
-            addModalListeners(); // Add modal listeners
-            addChatListeners(); // Add chat listeners
+            addHeaderSpecificListeners();
+            addGlobalClickListeners();
+            addSettingsListeners();
+            addModalListeners();
+            addChatListeners();
         });
 }
 
@@ -108,11 +106,12 @@ function loadSidebarAndHeader() {
 function setActiveSidebarLink() {
     try {
         let currentPage = window.location.pathname.split("/").pop() || "index.html";
-        if (currentPage === "" && window.location.pathname.includes('/')) {
-             currentPage = "index.html";
-        } else if (currentPage === "") {
+        if (currentPage === "" && window.location.pathname.endsWith('/Kore--Course-Tracker/')) { // Check if it's the root of the repo path
+             currentPage = "index.html"; // Treat repo root as landing page
+        } else if (currentPage === "Kore--Course-Tracker") { // Sometimes the repo name itself is the last part at root
              currentPage = "index.html";
         }
+
 
         const sidebarContainer = document.getElementById("sidebar-container");
         if (!sidebarContainer) {
@@ -134,9 +133,13 @@ function setActiveSidebarLink() {
 
             link.classList.remove("active");
 
+            // Activate dashboard link specifically if on dashboard.html
             if (isDashboardLink && onDashboardPage) {
                 link.classList.add("active");
-            } else if (!isDashboardLink && isMatch && currentPage !== "index.html") {
+            }
+            // Activate other links if their href matches the current page filename
+            // AND we are not on the landing page (index.html)
+            else if (!isDashboardLink && isMatch && currentPage !== "index.html") {
                  link.classList.add("active");
             }
         });
@@ -179,7 +182,7 @@ function addGlobalListeners() {
         const searchForm = document.getElementById("search-form");
         const quoteElement = document.getElementById("header-quote");
         let currentPage = window.location.pathname.split("/").pop() || "index.html";
-         if (currentPage === "") currentPage = "index.html";
+         if (currentPage === "" || currentPage === "Kore--Course-Tracker") currentPage = "index.html"; // Handle root path
 
         const searchPages = ["dashboard.html", "courses.html"];
         const quotes = [
@@ -194,12 +197,12 @@ function addGlobalListeners() {
             if (searchPages.includes(currentPage)) {
                 searchForm.style.display = "flex";
                 quoteElement.style.display = "none";
-            } else if (currentPage !== "index.html" && currentPage !== "auth.html") {
+            } else if (currentPage !== "index.html" && currentPage !== "auth.html") { // Hide search/show quote only on dashboard pages
                 searchForm.style.display = "none";
                 const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
                 quoteElement.innerText = randomQuote;
                 quoteElement.style.display = "block";
-            } else {
+            } else { // On index.html or auth.html, hide both
                  searchForm.style.display = "none";
                  quoteElement.style.display = "none";
             }
@@ -240,7 +243,7 @@ function addGlobalListeners() {
                 event.preventDefault();
                 localStorage.removeItem('userName');
                 localStorage.removeItem('theme');
-                window.location.href = 'index.html';
+                window.location.href = 'index.html'; // Go back to landing (index.html)
             });
             console.log("Logout listener added.");
         } else { console.warn("Logout button not found for listener setup."); }
