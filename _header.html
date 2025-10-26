@@ -1,0 +1,42 @@
+<input type="checkbox" id="nav-toggle">
+
+<header class="main-header">
+
+    <div id="header-left-content">
+        <form class="search-bar" id="search-form">
+            <input type="text" id="search-input" placeholder="Search course...">
+            <button type="submit">🔍</button>
+        </form>
+        <div class="header-quote" id="header-quote" style="display: none;"></div>
+    </div>
+
+    <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+    </label>
+
+    <div class="header-icons">
+        <div class="notification-dropdown">
+            <span class="icon" id="notification-icon">🔔</span>
+            <div class="dropdown-menu notification-menu" id="notification-dropdown-menu">
+                <div class="notification-item">
+                    <strong>New Course Added!</strong><br>
+                    Check out the 'Creative Writing Workshop'.
+                </div>
+                <div class="notification-item">
+                    <strong>Reminder</strong><br>
+                    Your 'Web Dev' project is due on Oct 28th.
+                </div>
+                 <div class="notification-item no-border">
+                    <small>No more notifications</small>
+                </div>
+            </div>
+        </div>
+        <div class="profile-dropdown">
+            <img src="https://placehold.co/100x100/d9e2f3/1f497d?text=U" alt="Profile" class="profile-img" id="header-profile-icon">
+            <div class="dropdown-menu" id="profile-dropdown-menu">
+                <a href="settings.html">My Profile</a>
+                <a href="landing.html" id="logout-btn">Log Out</a>
+            </div>
+        </div>
+    </div>
+</header>

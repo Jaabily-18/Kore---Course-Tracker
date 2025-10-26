@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course - Web Dev</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        
+        <div id="header-container"></div>
+
+        <section id="course-web-dev" class="page-content">
+            <a href="index.html" class="btn-back">⬅️ Back to Home</a>
+            
+            <h1>Web Development Bootcamp</h1>
+            <p>From HTML basics to full-stack applications. This is your all-in-one guide to becoming a web developer.</p>
+            
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/VlPiVmYuoqw" 
+                        title="YouTube video player" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <div class="course-page-grid">
+                <div class="card course-progress-card">
+                    <h2>Your Progress</h2>
+                    <div class="donut" style="--percentage: 80;">
+                        <span>80%</span>
+                    </div>
+                    <p>Great job! You're almost at the finish line.</p>
+                </div>
+                
+                <div class="card assignment-list">
+                    <h2>Upcoming Assignments</h2>
+                    <ul>
+                        <li>
+                            <span>Final Project: Portfolio Site</span>
+                            <span class="tag tag-overdue js-open-modal">Submit</span>
+                        </li>
+                        <li>
+                            <span>Module 12: React Hooks Quiz</span>
+                            <span class.html="tag tag-due js-open-modal">Submit</span>
+                        </li>
+                        <li>
+                            <span>Peer Review: Classmates' Projects</span>
+                            <span class="tag tag-due js-open-modal">Submit</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card syllabus-list" style="grid-column: 1 / -1;">
+                    <h2>Syllabus & Modules</h2>
+                    <ul>
+                        <li><span>✅ Module 1: HTML & CSS Basics</span> <span class="tag tag-completed">Completed</span></li>
+                        <li><span>✅ Module 2: JavaScript Fundamentals</span> <span class="tag tag-completed">Completed</span></li>
+                        <li><span>✅ Module 3: Advanced CSS (Flexbox & Grid)</span> <span class="tag tag-completed">Completed</span></li>
+                        <li><span>▶️ Module 4: React & State Management</span> <span class="tag tag-inprogress">In Progress</span></li>
+                        <li><span>🔒 Module 5: Node.js & Express</span> <span class="tag">Locked</span></li>
+                        <li><span>🔒 Module 6: Databases (SQL & MongoDB)</span> <span class="tag">Locked</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <button id="chat-toggle-btn" class="chat-button">💬</button>
+    
+    <div id="submission-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h3>Submit Your Assignment</h3>
+            <p>Please select your file and click submit.</p>
+            <form id="submission-form">
+                <div class="form-group">
+                    <label for="file-upload">Choose file:</label>
+                    <input type="file" id="file-upload" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit File</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast-notification">
+        File Submitted Successfully! ✅
+    </div>
+    
+    <div id="chat-popup" class="chat-popup">
+        <div class="chat-header">
+            <h3>Live Chat</h3>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="message-bubble">
+                Hello! How can I help you today?
+            </div>
+        </div>
+        <form class="chat-input-form" id="chat-input-form">
+            <input type="text" id="chat-input" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    
+</body>
+</html>

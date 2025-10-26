@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Progress</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        
+        <div id="header-container"></div>
+
+        <section id="progress" class="page-content">
+            <h1>Your Progress</h1>
+            <p>Track your achievements and see how far you've come.</p>
+            
+            <div class="progress-stats">
+                <div class="stat-card">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Courses in Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Courses Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Certificates Earned</div>
+                </div>
+            </div>
+            
+            <div class="card progress-table">
+                <h2>In-Depth Breakdown</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Course Name</th>
+                            <th>Progress</th>
+                            <th>Grade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Web Development Bootcamp</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 80%;"></div>
+                                </div>
+                            </td>
+                            <td>A-</td>
+                            <td><span class="tag tag-inprogress">In Progress</span></td>
+                        </tr>
+                        <tr>
+                            <td>Data Science Essentials</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 45%;"></div>
+                                </div>
+                            </td>
+                            <td>B</td>
+                            <td><span class="tag tag-inprogress">In Progress</span></td>
+                        </tr>
+                        <tr>
+                            <td>UX/UI Design Principles</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 20%;"></div>
+                                </div>
+                            </td>
+                            <td>-</td>
+                            <td><span class="tag tag-inprogress">In Progress</span></td>
+                        </tr>
+                        <tr>
+                            <td>Introduction to Python</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 100%;"></div>
+                                </div>
+                            </td>
+                            <td>A+</td>
+                            <td><span class="tag tag-completed">Completed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        </main>
+    
+    <button id="chat-toggle-btn" class="chat-button">💬</button>
+
+    <div id="submission-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h3>Submit Your Assignment</h3>
+            <p>Please select your file and click submit.</p>
+            <form id="submission-form">
+                <div class="form-group">
+                    <label for="file-upload">Choose file:</label>
+                    <input type="file" id="file-upload" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit File</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast-notification">
+        File Submitted Successfully! ✅
+    </div>
+
+    <div id="chat-popup" class="chat-popup">
+        <div class="chat-header">
+            <h3>Live Chat</h3>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="message-bubble">
+                Hello! How can I help you today?
+            </div>
+        </div>
+        <form class="chat-input-form" id="chat-input-form">
+            <input type="text" id="chat-input" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    
+</body>
+</html>
